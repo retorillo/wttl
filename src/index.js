@@ -1,5 +1,8 @@
 'use strict';
+require('es6-promise').polyfill();
 require('canvas-text-metrics-polyfill');
+require('whatwg-fetch');
+
 var $ = require('jquery');
 var figlet = require('figlet');
 var knockout = require('knockout');
@@ -90,7 +93,7 @@ viewmodel.generate = function() {
   figlet.text(viewmodel.input(), { font: viewmodel.flfname() },
     function(err, data) {
       if (err) {
-        console.log("figlet: error");
+        console.log("figlet: ", err);
         return;
       }
       var packoptions = {
