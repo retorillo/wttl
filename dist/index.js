@@ -27638,13 +27638,14 @@ function normalize(data) {
   var tlines = [], triml = Number.MAX_VALUE, m = null;
   var empty = 0;
   var lns = lines(data);
-  for (var l of lns) {
+  lns.forEach(function(l) {
     triml = Math.min(triml, (m = /\s*/.exec(l)) ? m[0].length : 0);
     if (/^\s*$/.test(l)) empty++;
     else empty = 0;
-  }
-  for (var l of lns.splice(0, lns.length - empty))
+  });
+   lns.splice(0, lns.length - empty).forEach(function(l) {
     tlines.push(l.substr(triml));
+  });
   return tlines.join('\n');
 }
 function pack(canvas, data, options) {
@@ -27674,10 +27675,10 @@ function pack(canvas, data, options) {
   var horzmax = Math.floor(canvasw / chw);
   var vertmax = Math.ceil(canvash / chh);
   var horzn = 0, vertn = 0;
-  for (var l of lines(data)) {
+  lines(data).forEach(function(l) {
     horzn = Math.max(horzn, l.length);
     vertn++;
-  }
+  });
   horzmax = Math.max(horzmax, horzn);
   if (vertmax < vertn) {
     vertmax = Math.max(vertmax, vertn);
@@ -27699,11 +27700,11 @@ function pack(canvas, data, options) {
   var padt = vertpad / 2;
   for (var c = 0; c < padt; c++)
     plines.push(new Array(horzmax + 1).join(space));
-  for (var l of lines(data)) {
+  lines(data).forEach(function(l) {
     var pl = new Array(padl + 1).join(space) + l;
     pl = pl + new Array(horzmax - pl.length + 1).join(space);
     plines.push(pl);
-  }
+  });
   for (var c = 0; c < padt; c++)
     plines.push(new Array(horzmax + 1).join(space));
   var maindata = plines.join('\n');
@@ -27719,8 +27720,9 @@ function pack(canvas, data, options) {
     return bgcolor.clone().blend(c, 'normal').css('hex');
   }
   var n = 0;
-  for (var d of fragmentdata(randomdata(horzmax, vertmax, maindata), options.randomquality))
-    items.push({ text: d, color: makecolor(n++) });
+  fragmentdata(randomdata(horzmax, vertmax, maindata), options.randomquality).forEach(function(d) {
+    items.push({ text: d, color: makecolor(n++) }); 
+  });
   return {
     overflowx: overflowx,
     overflowy: overflowy,
@@ -27773,14 +27775,14 @@ function draw(canvas, pack) {
   ctxw.set('font', pack.fontinfo.font);
   ctxw.set('textAlign', 'center');
   ctx.fillRect(0, 0, canvasw, canvash);
-  for (var item of pack.items) {
+  pack.items.forEach(function (item) {
     ctxw.set('fillStyle', item.color);
     var y = pack.fontinfo.mt.fontBoundingBoxAscent - pack.overflowy * pack.chh * 0.5;
-    for (var line of item.text.split(/\r?\n/)) {
+    item.text.split(/\r?\n/).forEach(function (line) {
       ctx.fillText(line, canvasw / 2, y);
       y += pack.chh;
-    }
-  }
+    });
+  });
   ctxw.restore();
 };
 function watchobject(obj) {
