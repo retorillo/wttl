@@ -12,9 +12,11 @@ var bootstrap = require('bootstrap');
 var slider = require('bootstrap-slider');
 var filesaver = require('file-saver');
 var iro = require('iro');
-var dateformat = require('dateformat');
 iro.Color.useHsv = true;
-
+var dateformat = require('dateformat');
+var ga = require('universal-ga');
+ga.initialize('UA-123360628-1');
+var productionurl = /^https:\/\/retorillo\.github\.io/;
 const space = ' ';
 
 knockout.bindingHandlers.slider = {
@@ -117,6 +119,8 @@ viewmodel.saveas = function() {
     var fn = ['WTTLGenerator', viewmodel.text(), time].join('_') + '.png';
     filesaver.saveAs(blob, fn);
   });
+  if (productionurl.test(document.location))
+    ga.event("wttl", "download");
 };
 viewmodel.getcolor = function(prefix){
   return new iro.Color().hsv(viewmodel[prefix + 'hue'](),
@@ -319,4 +323,6 @@ $(function() {
   viewmodel.updateflf();
   // viewmodel.updatelogo();
   viewmodel.generate();
+  if (productionurl.test(document.location))
+    ga.pageview('/wttl');
 });

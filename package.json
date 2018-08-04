@@ -18,6 +18,7 @@
     "uglify-js-es6": "^2.8.9",
     "uglifycss": "0.0.29",
     "uglifyjs": "^2.4.11",
+    "universal-ga": "^1.2.0",
     "whatwg-fetch": "^2.0.4"
   }
 }
