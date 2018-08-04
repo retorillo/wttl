@@ -2,6 +2,7 @@
 require('es6-promise').polyfill();
 require('canvas-text-metrics-polyfill');
 require('whatwg-fetch');
+require('blueimp-canvas-to-blob');
 
 var $ = require('jquery');
 var figlet = require('figlet');
@@ -9,7 +10,9 @@ var knockout = require('knockout');
 var flfs = require('./flfs.js');
 var bootstrap = require('bootstrap');
 var slider = require('bootstrap-slider');
+var filesaver = require('file-saver');
 var iro = require('iro');
+var dateformat = require('dateformat');
 iro.Color.useHsv = true;
 
 const space = ' ';
@@ -85,12 +88,12 @@ viewmodel.fontsize = knockout.observable(18);
 viewmodel.fontsize.subscribe(function(newval){
   viewmodel.generate();
 });
-viewmodel.input = knockout.observable('WTTL Generator');
-viewmodel.input.subscribe(function(newval){
+viewmodel.text = knockout.observable('WTTL Generator');
+viewmodel.text.subscribe(function(newval){
   viewmodel.generate();
 });
 viewmodel.generate = function() {
-  figlet.text(viewmodel.input(), { font: viewmodel.flfname() },
+  figlet.text(viewmodel.text(), { font: viewmodel.flfname() },
     function(err, data) {
       if (err) {
         console.log("figlet: ", err);
@@ -106,6 +109,14 @@ viewmodel.generate = function() {
       };
       draw(canvas, pack(canvas, data, packoptions));
     });
+};
+viewmodel.saveas = function() {
+  var now = new Date();
+  var time = [dateformat(now, 'yyyymmdd'), 'T', dateformat(now, 'HHMMss')].join('');
+  canvas.get(0).toBlob(function(blob) {
+    var fn = ['WTTLGenerator', viewmodel.text(), time].join('_') + '.png';
+    filesaver.saveAs(blob, fn);
+  });
 };
 viewmodel.getcolor = function(prefix){
   return new iro.Color().hsv(viewmodel[prefix + 'hue'](),
@@ -225,7 +236,7 @@ function pack(canvas, data, options) {
   }
   var n = 0;
   fragmentdata(randomdata(horzmax, vertmax, maindata), options.randomquality).forEach(function(d) {
-    items.push({ text: d, color: makecolor(n++) }); 
+    items.push({ text: d, color: makecolor(n++) });
   });
   return {
     overflowx: overflowx,

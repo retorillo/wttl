@@ -24,14 +24,17 @@ html
           div(class="input-group mt-1 mb-1")
             div(class="input-group-prepend")
               span(class="input-group-text") Text
-            input(class="form-control" data-bind="textInput: input")
+            input(class="form-control" data-bind="textInput: text")
             div(class="input-group-append")
               button(class="btn btn-outline-primary" data-bind="click: generate") Update
         div(class="col-6")
-          div(class="input-group mt-1 mb-1 col-xs-4")
+          div(class="input-group mt-1 mb-1")
             div(class="input-group-prepend")
               span(class="input-group-text") Font
             select(class="custom-select" data-bind="options: flfs, value: flfname")
+        div(class="col-6 text-right")
+          div(class="mt-1 mb-1")
+            button(class="btn btn-primary" data-bind="click: saveas") Download
       div(class="row")
         div(class="col-sm-12 col-md-6 col-lg-3 col-xl-3")
           div Character Size

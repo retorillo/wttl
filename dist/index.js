@@ -1,4 +1,132 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+/*
+ * JavaScript Canvas to Blob
+ * https://github.com/blueimp/JavaScript-Canvas-to-Blob
+ *
+ * Copyright 2012, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ *
+ * Based on stackoverflow user Stoive's code snippet:
+ * http://stackoverflow.com/q/4998908
+ */
+
+/* global atob, Blob, define */
+
+;(function (window) {
+  'use strict'
+
+  var CanvasPrototype =
+    window.HTMLCanvasElement && window.HTMLCanvasElement.prototype
+  var hasBlobConstructor =
+    window.Blob &&
+    (function () {
+      try {
+        return Boolean(new Blob())
+      } catch (e) {
+        return false
+      }
+    })()
+  var hasArrayBufferViewSupport =
+    hasBlobConstructor &&
+    window.Uint8Array &&
+    (function () {
+      try {
+        return new Blob([new Uint8Array(100)]).size === 100
+      } catch (e) {
+        return false
+      }
+    })()
+  var BlobBuilder =
+    window.BlobBuilder ||
+    window.WebKitBlobBuilder ||
+    window.MozBlobBuilder ||
+    window.MSBlobBuilder
+  var dataURIPattern = /^data:((.*?)(;charset=.*?)?)(;base64)?,/
+  var dataURLtoBlob =
+    (hasBlobConstructor || BlobBuilder) &&
+    window.atob &&
+    window.ArrayBuffer &&
+    window.Uint8Array &&
+    function (dataURI) {
+      var matches,
+        mediaType,
+        isBase64,
+        dataString,
+        byteString,
+        arrayBuffer,
+        intArray,
+        i,
+        bb
+      // Parse the dataURI components as per RFC 2397
+      matches = dataURI.match(dataURIPattern)
+      if (!matches) {
+        throw new Error('invalid data URI')
+      }
+      // Default to text/plain;charset=US-ASCII
+      mediaType = matches[2]
+        ? matches[1]
+        : 'text/plain' + (matches[3] || ';charset=US-ASCII')
+      isBase64 = !!matches[4]
+      dataString = dataURI.slice(matches[0].length)
+      if (isBase64) {
+        // Convert base64 to raw binary data held in a string:
+        byteString = atob(dataString)
+      } else {
+        // Convert base64/URLEncoded data component to raw binary:
+        byteString = decodeURIComponent(dataString)
+      }
+      // Write the bytes of the string to an ArrayBuffer:
+      arrayBuffer = new ArrayBuffer(byteString.length)
+      intArray = new Uint8Array(arrayBuffer)
+      for (i = 0; i < byteString.length; i += 1) {
+        intArray[i] = byteString.charCodeAt(i)
+      }
+      // Write the ArrayBuffer (or ArrayBufferView) to a blob:
+      if (hasBlobConstructor) {
+        return new Blob([hasArrayBufferViewSupport ? intArray : arrayBuffer], {
+          type: mediaType
+        })
+      }
+      bb = new BlobBuilder()
+      bb.append(arrayBuffer)
+      return bb.getBlob(mediaType)
+    }
+  if (window.HTMLCanvasElement && !CanvasPrototype.toBlob) {
+    if (CanvasPrototype.mozGetAsFile) {
+      CanvasPrototype.toBlob = function (callback, type, quality) {
+        var self = this
+        setTimeout(function () {
+          if (quality && CanvasPrototype.toDataURL && dataURLtoBlob) {
+            callback(dataURLtoBlob(self.toDataURL(type, quality)))
+          } else {
+            callback(self.mozGetAsFile('blob', type))
+          }
+        })
+      }
+    } else if (CanvasPrototype.toDataURL && dataURLtoBlob) {
+      CanvasPrototype.toBlob = function (callback, type, quality) {
+        var self = this
+        setTimeout(function () {
+          callback(dataURLtoBlob(self.toDataURL(type, quality)))
+        })
+      }
+    }
+  }
+  if (typeof define === 'function' && define.amd) {
+    define(function () {
+      return dataURLtoBlob
+    })
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = dataURLtoBlob
+  } else {
+    window.dataURLtoBlob = dataURLtoBlob
+  }
+})(window)
+
+},{}],2:[function(require,module,exports){
 /*! =======================================================
                       VERSION  10.2.0              
 ========================================================= */
@@ -1880,7 +2008,7 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 	return Slider;
 });
 
-},{"jquery":11}],2:[function(require,module,exports){
+},{"jquery":14}],3:[function(require,module,exports){
 /*!
   * Bootstrap v4.1.3 (https://getbootstrap.com/)
   * Copyright 2011-2018 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
@@ -5826,7 +5954,7 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 })));
 
 
-},{"jquery":11,"popper.js":13}],3:[function(require,module,exports){
+},{"jquery":14,"popper.js":16}],4:[function(require,module,exports){
 var baselineCache_ = {};
 
 function styleKey_(style) {
@@ -5867,7 +5995,7 @@ module.exports = {
 	store : store,
 	clear : clear
 };
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = function CanvasMeasurementContext() {
 	'use strict';
 
@@ -6308,7 +6436,7 @@ module.exports = function CanvasMeasurementContext() {
 	};
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var svgNS = 'http://www.w3.org/2000/svg';
 
 module.exports = function SVGMeasurementContext() {
@@ -6482,7 +6610,7 @@ module.exports = function SVGMeasurementContext() {
 	return this;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
 
   A polyfill for the enhanced context.measureText() in HTML <canvas> v5 / Canvas
@@ -6867,7 +6995,7 @@ module.exports = function SVGMeasurementContext() {
     };
 
 })();
-},{"./BaselineCache":3,"./CanvasMeasurementContext":4,"./SVGMeasurementContext":5,"./sniffsvg":7}],7:[function(require,module,exports){
+},{"./BaselineCache":4,"./CanvasMeasurementContext":5,"./SVGMeasurementContext":6,"./sniffsvg":8}],8:[function(require,module,exports){
 var svgNS = 'http://www.w3.org/2000/svg';
 module.exports = function sniffSVG(document) {
 	if (!document) {
@@ -6883,7 +7011,238 @@ module.exports = function sniffSVG(document) {
 		svgText11 : document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Text', '1.1')
 	};
 };
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+/*
+ * Date Format 1.2.3
+ * (c) 2007-2009 Steven Levithan <stevenlevithan.com>
+ * MIT license
+ *
+ * Includes enhancements by Scott Trenda <scott.trenda.net>
+ * and Kris Kowal <cixar.com/~kris.kowal/>
+ *
+ * Accepts a date, a mask, or a date and a mask.
+ * Returns a formatted version of the given date.
+ * The date defaults to the current date/time.
+ * The mask defaults to dateFormat.masks.default.
+ */
+
+(function(global) {
+  'use strict';
+
+  var dateFormat = (function() {
+      var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZWN]|"[^"]*"|'[^']*'/g;
+      var timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g;
+      var timezoneClip = /[^-+\dA-Z]/g;
+  
+      // Regexes and supporting functions are cached through closure
+      return function (date, mask, utc, gmt) {
+  
+        // You can't provide utc if you skip other args (use the 'UTC:' mask prefix)
+        if (arguments.length === 1 && kindOf(date) === 'string' && !/\d/.test(date)) {
+          mask = date;
+          date = undefined;
+        }
+  
+        date = date || new Date;
+  
+        if(!(date instanceof Date)) {
+          date = new Date(date);
+        }
+  
+        if (isNaN(date)) {
+          throw TypeError('Invalid date');
+        }
+  
+        mask = String(dateFormat.masks[mask] || mask || dateFormat.masks['default']);
+  
+        // Allow setting the utc/gmt argument via the mask
+        var maskSlice = mask.slice(0, 4);
+        if (maskSlice === 'UTC:' || maskSlice === 'GMT:') {
+          mask = mask.slice(4);
+          utc = true;
+          if (maskSlice === 'GMT:') {
+            gmt = true;
+          }
+        }
+  
+        var _ = utc ? 'getUTC' : 'get';
+        var d = date[_ + 'Date']();
+        var D = date[_ + 'Day']();
+        var m = date[_ + 'Month']();
+        var y = date[_ + 'FullYear']();
+        var H = date[_ + 'Hours']();
+        var M = date[_ + 'Minutes']();
+        var s = date[_ + 'Seconds']();
+        var L = date[_ + 'Milliseconds']();
+        var o = utc ? 0 : date.getTimezoneOffset();
+        var W = getWeek(date);
+        var N = getDayOfWeek(date);
+        var flags = {
+          d:    d,
+          dd:   pad(d),
+          ddd:  dateFormat.i18n.dayNames[D],
+          dddd: dateFormat.i18n.dayNames[D + 7],
+          m:    m + 1,
+          mm:   pad(m + 1),
+          mmm:  dateFormat.i18n.monthNames[m],
+          mmmm: dateFormat.i18n.monthNames[m + 12],
+          yy:   String(y).slice(2),
+          yyyy: y,
+          h:    H % 12 || 12,
+          hh:   pad(H % 12 || 12),
+          H:    H,
+          HH:   pad(H),
+          M:    M,
+          MM:   pad(M),
+          s:    s,
+          ss:   pad(s),
+          l:    pad(L, 3),
+          L:    pad(Math.round(L / 10)),
+          t:    H < 12 ? dateFormat.i18n.timeNames[0] : dateFormat.i18n.timeNames[1],
+          tt:   H < 12 ? dateFormat.i18n.timeNames[2] : dateFormat.i18n.timeNames[3],
+          T:    H < 12 ? dateFormat.i18n.timeNames[4] : dateFormat.i18n.timeNames[5],
+          TT:   H < 12 ? dateFormat.i18n.timeNames[6] : dateFormat.i18n.timeNames[7],
+          Z:    gmt ? 'GMT' : utc ? 'UTC' : (String(date).match(timezone) || ['']).pop().replace(timezoneClip, ''),
+          o:    (o > 0 ? '-' : '+') + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
+          S:    ['th', 'st', 'nd', 'rd'][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10],
+          W:    W,
+          N:    N
+        };
+  
+        return mask.replace(token, function (match) {
+          if (match in flags) {
+            return flags[match];
+          }
+          return match.slice(1, match.length - 1);
+        });
+      };
+    })();
+
+  dateFormat.masks = {
+    'default':               'ddd mmm dd yyyy HH:MM:ss',
+    'shortDate':             'm/d/yy',
+    'mediumDate':            'mmm d, yyyy',
+    'longDate':              'mmmm d, yyyy',
+    'fullDate':              'dddd, mmmm d, yyyy',
+    'shortTime':             'h:MM TT',
+    'mediumTime':            'h:MM:ss TT',
+    'longTime':              'h:MM:ss TT Z',
+    'isoDate':               'yyyy-mm-dd',
+    'isoTime':               'HH:MM:ss',
+    'isoDateTime':           'yyyy-mm-dd\'T\'HH:MM:sso',
+    'isoUtcDateTime':        'UTC:yyyy-mm-dd\'T\'HH:MM:ss\'Z\'',
+    'expiresHeaderFormat':   'ddd, dd mmm yyyy HH:MM:ss Z'
+  };
+
+  // Internationalization strings
+  dateFormat.i18n = {
+    dayNames: [
+      'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+    ],
+    monthNames: [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    timeNames: [
+      'a', 'p', 'am', 'pm', 'A', 'P', 'AM', 'PM'
+    ]
+  };
+
+function pad(val, len) {
+  val = String(val);
+  len = len || 2;
+  while (val.length < len) {
+    val = '0' + val;
+  }
+  return val;
+}
+
+/**
+ * Get the ISO 8601 week number
+ * Based on comments from
+ * http://techblog.procurios.nl/k/n618/news/view/33796/14863/Calculate-ISO-8601-week-and-year-in-javascript.html
+ *
+ * @param  {Object} `date`
+ * @return {Number}
+ */
+function getWeek(date) {
+  // Remove time components of date
+  var targetThursday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  // Change date to Thursday same week
+  targetThursday.setDate(targetThursday.getDate() - ((targetThursday.getDay() + 6) % 7) + 3);
+
+  // Take January 4th as it is always in week 1 (see ISO 8601)
+  var firstThursday = new Date(targetThursday.getFullYear(), 0, 4);
+
+  // Change date to Thursday same week
+  firstThursday.setDate(firstThursday.getDate() - ((firstThursday.getDay() + 6) % 7) + 3);
+
+  // Check if daylight-saving-time-switch occurred and correct for it
+  var ds = targetThursday.getTimezoneOffset() - firstThursday.getTimezoneOffset();
+  targetThursday.setHours(targetThursday.getHours() - ds);
+
+  // Number of weeks between target Thursday and first Thursday
+  var weekDiff = (targetThursday - firstThursday) / (86400000*7);
+  return 1 + Math.floor(weekDiff);
+}
+
+/**
+ * Get ISO-8601 numeric representation of the day of the week
+ * 1 (for Monday) through 7 (for Sunday)
+ * 
+ * @param  {Object} `date`
+ * @return {Number}
+ */
+function getDayOfWeek(date) {
+  var dow = date.getDay();
+  if(dow === 0) {
+    dow = 7;
+  }
+  return dow;
+}
+
+/**
+ * kind-of shortcut
+ * @param  {*} val
+ * @return {String}
+ */
+function kindOf(val) {
+  if (val === null) {
+    return 'null';
+  }
+
+  if (val === undefined) {
+    return 'undefined';
+  }
+
+  if (typeof val !== 'object') {
+    return typeof val;
+  }
+
+  if (Array.isArray(val)) {
+    return 'array';
+  }
+
+  return {}.toString.call(val)
+    .slice(8, -1).toLowerCase();
+};
+
+
+
+  if (typeof define === 'function' && define.amd) {
+    define(function () {
+      return dateFormat;
+    });
+  } else if (typeof exports === 'object') {
+    module.exports = dateFormat;
+  } else {
+    global.dateFormat = dateFormat;
+  }
+})(this);
+
+},{}],10:[function(require,module,exports){
 (function (process,global){
 /*!
  * @overview es6-promise - a tiny implementation of Promises/A+.
@@ -8066,7 +8425,7 @@ return Promise$1;
 
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":14}],9:[function(require,module,exports){
+},{"_process":17}],11:[function(require,module,exports){
 /*
     FIGlet.js (a FIGDriver for FIGlet fonts)
     By Patrick Gillespie (patorjk@gmail.com)
@@ -9064,7 +9423,197 @@ if (typeof module !== 'undefined') {
     }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
+/* FileSaver.js
+ * A saveAs() FileSaver implementation.
+ * 1.3.2
+ * 2016-06-16 18:25:19
+ *
+ * By Eli Grey, http://eligrey.com
+ * License: MIT
+ *   See https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md
+ */
+
+/*global self */
+/*jslint bitwise: true, indent: 4, laxbreak: true, laxcomma: true, smarttabs: true, plusplus: true */
+
+/*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
+
+var saveAs = saveAs || (function(view) {
+	"use strict";
+	// IE <10 is explicitly unsupported
+	if (typeof view === "undefined" || typeof navigator !== "undefined" && /MSIE [1-9]\./.test(navigator.userAgent)) {
+		return;
+	}
+	var
+		  doc = view.document
+		  // only get URL when necessary in case Blob.js hasn't overridden it yet
+		, get_URL = function() {
+			return view.URL || view.webkitURL || view;
+		}
+		, save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a")
+		, can_use_save_link = "download" in save_link
+		, click = function(node) {
+			var event = new MouseEvent("click");
+			node.dispatchEvent(event);
+		}
+		, is_safari = /constructor/i.test(view.HTMLElement) || view.safari
+		, is_chrome_ios =/CriOS\/[\d]+/.test(navigator.userAgent)
+		, throw_outside = function(ex) {
+			(view.setImmediate || view.setTimeout)(function() {
+				throw ex;
+			}, 0);
+		}
+		, force_saveable_type = "application/octet-stream"
+		// the Blob API is fundamentally broken as there is no "downloadfinished" event to subscribe to
+		, arbitrary_revoke_timeout = 1000 * 40 // in ms
+		, revoke = function(file) {
+			var revoker = function() {
+				if (typeof file === "string") { // file is an object URL
+					get_URL().revokeObjectURL(file);
+				} else { // file is a File
+					file.remove();
+				}
+			};
+			setTimeout(revoker, arbitrary_revoke_timeout);
+		}
+		, dispatch = function(filesaver, event_types, event) {
+			event_types = [].concat(event_types);
+			var i = event_types.length;
+			while (i--) {
+				var listener = filesaver["on" + event_types[i]];
+				if (typeof listener === "function") {
+					try {
+						listener.call(filesaver, event || filesaver);
+					} catch (ex) {
+						throw_outside(ex);
+					}
+				}
+			}
+		}
+		, auto_bom = function(blob) {
+			// prepend BOM for UTF-8 XML and text/* types (including HTML)
+			// note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
+			if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
+				return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
+			}
+			return blob;
+		}
+		, FileSaver = function(blob, name, no_auto_bom) {
+			if (!no_auto_bom) {
+				blob = auto_bom(blob);
+			}
+			// First try a.download, then web filesystem, then object URLs
+			var
+				  filesaver = this
+				, type = blob.type
+				, force = type === force_saveable_type
+				, object_url
+				, dispatch_all = function() {
+					dispatch(filesaver, "writestart progress write writeend".split(" "));
+				}
+				// on any filesys errors revert to saving with object URLs
+				, fs_error = function() {
+					if ((is_chrome_ios || (force && is_safari)) && view.FileReader) {
+						// Safari doesn't allow downloading of blob urls
+						var reader = new FileReader();
+						reader.onloadend = function() {
+							var url = is_chrome_ios ? reader.result : reader.result.replace(/^data:[^;]*;/, 'data:attachment/file;');
+							var popup = view.open(url, '_blank');
+							if(!popup) view.location.href = url;
+							url=undefined; // release reference before dispatching
+							filesaver.readyState = filesaver.DONE;
+							dispatch_all();
+						};
+						reader.readAsDataURL(blob);
+						filesaver.readyState = filesaver.INIT;
+						return;
+					}
+					// don't create more object URLs than needed
+					if (!object_url) {
+						object_url = get_URL().createObjectURL(blob);
+					}
+					if (force) {
+						view.location.href = object_url;
+					} else {
+						var opened = view.open(object_url, "_blank");
+						if (!opened) {
+							// Apple does not allow window.open, see https://developer.apple.com/library/safari/documentation/Tools/Conceptual/SafariExtensionGuide/WorkingwithWindowsandTabs/WorkingwithWindowsandTabs.html
+							view.location.href = object_url;
+						}
+					}
+					filesaver.readyState = filesaver.DONE;
+					dispatch_all();
+					revoke(object_url);
+				}
+			;
+			filesaver.readyState = filesaver.INIT;
+
+			if (can_use_save_link) {
+				object_url = get_URL().createObjectURL(blob);
+				setTimeout(function() {
+					save_link.href = object_url;
+					save_link.download = name;
+					click(save_link);
+					dispatch_all();
+					revoke(object_url);
+					filesaver.readyState = filesaver.DONE;
+				});
+				return;
+			}
+
+			fs_error();
+		}
+		, FS_proto = FileSaver.prototype
+		, saveAs = function(blob, name, no_auto_bom) {
+			return new FileSaver(blob, name || blob.name || "download", no_auto_bom);
+		}
+	;
+	// IE 10+ (native saveAs)
+	if (typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob) {
+		return function(blob, name, no_auto_bom) {
+			name = name || blob.name || "download";
+
+			if (!no_auto_bom) {
+				blob = auto_bom(blob);
+			}
+			return navigator.msSaveOrOpenBlob(blob, name);
+		};
+	}
+
+	FS_proto.abort = function(){};
+	FS_proto.readyState = FS_proto.INIT = 0;
+	FS_proto.WRITING = 1;
+	FS_proto.DONE = 2;
+
+	FS_proto.error =
+	FS_proto.onwritestart =
+	FS_proto.onprogress =
+	FS_proto.onwrite =
+	FS_proto.onabort =
+	FS_proto.onerror =
+	FS_proto.onwriteend =
+		null;
+
+	return saveAs;
+}(
+	   typeof self !== "undefined" && self
+	|| typeof window !== "undefined" && window
+	|| this.content
+));
+// `self` is undefined in Firefox for Android content script context
+// while `this` is nsIContentFrameMessageManager
+// with an attribute `content` that corresponds to the window
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports.saveAs = saveAs;
+} else if ((typeof define !== "undefined" && define !== null) && (define.amd !== null)) {
+  define("FileSaver.js", function() {
+    return saveAs;
+  });
+}
+
+},{}],13:[function(require,module,exports){
 /*! iro.color.js / The MIT Lisense / (c) 2015-2016 Retorillo */
 var iro = iro || {
   version: 'beta1'
@@ -9825,7 +10374,7 @@ if (module && module.exports) {
   }
 }
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.3.1
  * https://jquery.com/
@@ -20191,7 +20740,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * Knockout JavaScript library v3.4.2
  * (c) The Knockout.js team - http://knockoutjs.com/
@@ -26127,11 +26676,11 @@ ko.exportSymbol('nativeTemplateEngine', ko.nativeTemplateEngine);
 }());
 })();
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (global){
 /**!
  * @fileOverview Kickass library to create and place poppers near their reference elements.
- * @version 1.14.3
+ * @version 1.14.4
  * @license
  * Copyright (c) 2016 Federico Zivolo and contributors
  *
@@ -26474,10 +27023,10 @@ function getBordersSize(styles, axis) {
 }
 
 function getSize(axis, body, html, computedStyle) {
-  return Math.max(body['offset' + axis], body['scroll' + axis], html['client' + axis], html['offset' + axis], html['scroll' + axis], isIE(10) ? html['offset' + axis] + computedStyle['margin' + (axis === 'Height' ? 'Top' : 'Left')] + computedStyle['margin' + (axis === 'Height' ? 'Bottom' : 'Right')] : 0);
+  return Math.max(body['offset' + axis], body['scroll' + axis], html['client' + axis], html['offset' + axis], html['scroll' + axis], isIE(10) ? parseInt(html['offset' + axis]) + parseInt(computedStyle['margin' + (axis === 'Height' ? 'Top' : 'Left')]) + parseInt(computedStyle['margin' + (axis === 'Height' ? 'Bottom' : 'Right')]) : 0);
 }
 
-function getWindowSizes() {
+function getWindowSizes(document) {
   var body = document.body;
   var html = document.documentElement;
   var computedStyle = isIE(10) && getComputedStyle(html);
@@ -26594,7 +27143,7 @@ function getBoundingClientRect(element) {
   };
 
   // subtract scrollbar size from sizes
-  var sizes = element.nodeName === 'HTML' ? getWindowSizes() : {};
+  var sizes = element.nodeName === 'HTML' ? getWindowSizes(element.ownerDocument) : {};
   var width = sizes.width || element.clientWidth || result.right - result.left;
   var height = sizes.height || element.clientHeight || result.bottom - result.top;
 
@@ -26629,7 +27178,7 @@ function getOffsetRectRelativeToArbitraryNode(children, parent) {
   var borderLeftWidth = parseFloat(styles.borderLeftWidth, 10);
 
   // In cases where the parent is fixed, we must ignore negative scroll in offset calc
-  if (fixedPosition && parent.nodeName === 'HTML') {
+  if (fixedPosition && isHTML) {
     parentRect.top = Math.max(parentRect.top, 0);
     parentRect.left = Math.max(parentRect.left, 0);
   }
@@ -26767,7 +27316,7 @@ function getBoundaries(popper, reference, padding, boundariesElement) {
 
     // In case of HTML, we need a different computation
     if (boundariesNode.nodeName === 'HTML' && !isFixed(offsetParent)) {
-      var _getWindowSizes = getWindowSizes(),
+      var _getWindowSizes = getWindowSizes(popper.ownerDocument),
           height = _getWindowSizes.height,
           width = _getWindowSizes.width;
 
@@ -26782,10 +27331,12 @@ function getBoundaries(popper, reference, padding, boundariesElement) {
   }
 
   // Add paddings
-  boundaries.left += padding;
-  boundaries.top += padding;
-  boundaries.right -= padding;
-  boundaries.bottom -= padding;
+  padding = padding || 0;
+  var isPaddingNumber = typeof padding === 'number';
+  boundaries.left += isPaddingNumber ? padding : padding.left || 0;
+  boundaries.top += isPaddingNumber ? padding : padding.top || 0;
+  boundaries.right -= isPaddingNumber ? padding : padding.right || 0;
+  boundaries.bottom -= isPaddingNumber ? padding : padding.bottom || 0;
 
   return boundaries;
 }
@@ -27110,7 +27661,7 @@ function getSupportedPropertyName(property) {
 }
 
 /**
- * Destroy the popper
+ * Destroys the popper.
  * @method
  * @memberof Popper
  */
@@ -27217,7 +27768,7 @@ function removeEventListeners(reference, state) {
 
 /**
  * It will remove resize/scroll events and won't recalculate popper position
- * when they are triggered. It also won't trigger onUpdate callback anymore,
+ * when they are triggered. It also won't trigger `onUpdate` callback anymore,
  * unless you call `update` method manually.
  * @method
  * @memberof Popper
@@ -27394,12 +27945,22 @@ function computeStyle(data, options) {
   var left = void 0,
       top = void 0;
   if (sideA === 'bottom') {
-    top = -offsetParentRect.height + offsets.bottom;
+    // when offsetParent is <html> the positioning is relative to the bottom of the screen (excluding the scrollbar)
+    // and not the bottom of the html element
+    if (offsetParent.nodeName === 'HTML') {
+      top = -offsetParent.clientHeight + offsets.bottom;
+    } else {
+      top = -offsetParentRect.height + offsets.bottom;
+    }
   } else {
     top = offsets.top;
   }
   if (sideB === 'right') {
-    left = -offsetParentRect.width + offsets.right;
+    if (offsetParent.nodeName === 'HTML') {
+      left = -offsetParent.clientWidth + offsets.right;
+    } else {
+      left = -offsetParentRect.width + offsets.right;
+    }
   } else {
     left = offsets.left;
   }
@@ -27508,7 +28069,7 @@ function arrow(data, options) {
 
   //
   // extends keepTogether behavior making sure the popper and its
-  // reference have enough pixels in conjuction
+  // reference have enough pixels in conjunction
   //
 
   // top/left side
@@ -27578,7 +28139,7 @@ function getOppositeVariation(variation) {
  * - `top-end` (on top of reference, right aligned)
  * - `right-start` (on right of reference, top aligned)
  * - `bottom` (on bottom, centered)
- * - `auto-right` (on the side with more space available, alignment depends by placement)
+ * - `auto-end` (on the side with more space available, alignment depends by placement)
  *
  * @static
  * @type {Array}
@@ -28120,7 +28681,7 @@ var modifiers = {
    * The `offset` modifier can shift your popper on both its axis.
    *
    * It accepts the following units:
-   * - `px` or unitless, interpreted as pixels
+   * - `px` or unit-less, interpreted as pixels
    * - `%` or `%r`, percentage relative to the length of the reference element
    * - `%p`, percentage relative to the length of the popper element
    * - `vw`, CSS viewport width unit
@@ -28128,7 +28689,7 @@ var modifiers = {
    *
    * For length is intended the main axis relative to the placement of the popper.<br />
    * This means that if the placement is `top` or `bottom`, the length will be the
-   * `width`. In case of `left` or `right`, it will be the height.
+   * `width`. In case of `left` or `right`, it will be the `height`.
    *
    * You can provide a single value (as `Number` or `String`), or a pair of values
    * as `String` divided by a comma or one (or more) white spaces.<br />
@@ -28149,7 +28710,7 @@ var modifiers = {
    * ```
    * > **NB**: If you desire to apply offsets to your poppers in a way that may make them overlap
    * > with their reference element, unfortunately, you will have to disable the `flip` modifier.
-   * > More on this [reading this issue](https://github.com/FezVrasta/popper.js/issues/373)
+   * > You can read more on this at this [issue](https://github.com/FezVrasta/popper.js/issues/373).
    *
    * @memberof modifiers
    * @inner
@@ -28170,7 +28731,7 @@ var modifiers = {
   /**
    * Modifier used to prevent the popper from being positioned outside the boundary.
    *
-   * An scenario exists where the reference itself is not within the boundaries.<br />
+   * A scenario exists where the reference itself is not within the boundaries.<br />
    * We can say it has "escaped the boundaries" — or just "escaped".<br />
    * In this case we need to decide whether the popper should either:
    *
@@ -28200,23 +28761,23 @@ var modifiers = {
     /**
      * @prop {number} padding=5
      * Amount of pixel used to define a minimum distance between the boundaries
-     * and the popper this makes sure the popper has always a little padding
+     * and the popper. This makes sure the popper always has a little padding
      * between the edges of its container
      */
     padding: 5,
     /**
      * @prop {String|HTMLElement} boundariesElement='scrollParent'
-     * Boundaries used by the modifier, can be `scrollParent`, `window`,
+     * Boundaries used by the modifier. Can be `scrollParent`, `window`,
      * `viewport` or any DOM element.
      */
     boundariesElement: 'scrollParent'
   },
 
   /**
-   * Modifier used to make sure the reference and its popper stay near eachothers
-   * without leaving any gap between the two. Expecially useful when the arrow is
-   * enabled and you want to assure it to point to its reference element.
-   * It cares only about the first axis, you can still have poppers with margin
+   * Modifier used to make sure the reference and its popper stay near each other
+   * without leaving any gap between the two. Especially useful when the arrow is
+   * enabled and you want to ensure that it points to its reference element.
+   * It cares only about the first axis. You can still have poppers with margin
    * between the popper and its reference element.
    * @memberof modifiers
    * @inner
@@ -28234,7 +28795,7 @@ var modifiers = {
    * This modifier is used to move the `arrowElement` of the popper to make
    * sure it is positioned between the reference element and its popper element.
    * It will read the outer size of the `arrowElement` node to detect how many
-   * pixels of conjuction are needed.
+   * pixels of conjunction are needed.
    *
    * It has no effect if no `arrowElement` is provided.
    * @memberof modifiers
@@ -28273,7 +28834,7 @@ var modifiers = {
      * @prop {String|Array} behavior='flip'
      * The behavior used to change the popper's placement. It can be one of
      * `flip`, `clockwise`, `counterclockwise` or an array with a list of valid
-     * placements (with optional variations).
+     * placements (with optional variations)
      */
     behavior: 'flip',
     /**
@@ -28283,9 +28844,9 @@ var modifiers = {
     padding: 5,
     /**
      * @prop {String|HTMLElement} boundariesElement='viewport'
-     * The element which will define the boundaries of the popper position,
-     * the popper will never be placed outside of the defined boundaries
-     * (except if keepTogether is enabled)
+     * The element which will define the boundaries of the popper position.
+     * The popper will never be placed outside of the defined boundaries
+     * (except if `keepTogether` is enabled)
      */
     boundariesElement: 'viewport'
   },
@@ -28349,8 +28910,8 @@ var modifiers = {
     fn: computeStyle,
     /**
      * @prop {Boolean} gpuAcceleration=true
-     * If true, it uses the CSS 3d transformation to position the popper.
-     * Otherwise, it will use the `top` and `left` properties.
+     * If true, it uses the CSS 3D transformation to position the popper.
+     * Otherwise, it will use the `top` and `left` properties
      */
     gpuAcceleration: true,
     /**
@@ -28377,7 +28938,7 @@ var modifiers = {
    * Note that if you disable this modifier, you must make sure the popper element
    * has its position set to `absolute` before Popper.js can do its work!
    *
-   * Just disable this modifier and define you own to achieve the desired effect.
+   * Just disable this modifier and define your own to achieve the desired effect.
    *
    * @memberof modifiers
    * @inner
@@ -28394,27 +28955,27 @@ var modifiers = {
     /**
      * @deprecated since version 1.10.0, the property moved to `computeStyle` modifier
      * @prop {Boolean} gpuAcceleration=true
-     * If true, it uses the CSS 3d transformation to position the popper.
-     * Otherwise, it will use the `top` and `left` properties.
+     * If true, it uses the CSS 3D transformation to position the popper.
+     * Otherwise, it will use the `top` and `left` properties
      */
     gpuAcceleration: undefined
   }
 };
 
 /**
- * The `dataObject` is an object containing all the informations used by Popper.js
- * this object get passed to modifiers and to the `onCreate` and `onUpdate` callbacks.
+ * The `dataObject` is an object containing all the information used by Popper.js.
+ * This object is passed to modifiers and to the `onCreate` and `onUpdate` callbacks.
  * @name dataObject
  * @property {Object} data.instance The Popper.js instance
  * @property {String} data.placement Placement applied to popper
  * @property {String} data.originalPlacement Placement originally defined on init
  * @property {Boolean} data.flipped True if popper has been flipped by flip modifier
- * @property {Boolean} data.hide True if the reference element is out of boundaries, useful to know when to hide the popper.
+ * @property {Boolean} data.hide True if the reference element is out of boundaries, useful to know when to hide the popper
  * @property {HTMLElement} data.arrowElement Node used as arrow by arrow modifier
- * @property {Object} data.styles Any CSS property defined here will be applied to the popper, it expects the JavaScript nomenclature (eg. `marginBottom`)
- * @property {Object} data.arrowStyles Any CSS property defined here will be applied to the popper arrow, it expects the JavaScript nomenclature (eg. `marginBottom`)
+ * @property {Object} data.styles Any CSS property defined here will be applied to the popper. It expects the JavaScript nomenclature (eg. `marginBottom`)
+ * @property {Object} data.arrowStyles Any CSS property defined here will be applied to the popper arrow. It expects the JavaScript nomenclature (eg. `marginBottom`)
  * @property {Object} data.boundaries Offsets of the popper boundaries
- * @property {Object} data.offsets The measurements of popper, reference and arrow elements.
+ * @property {Object} data.offsets The measurements of popper, reference and arrow elements
  * @property {Object} data.offsets.popper `top`, `left`, `width`, `height` values
  * @property {Object} data.offsets.reference `top`, `left`, `width`, `height` values
  * @property {Object} data.offsets.arrow] `top` and `left` offsets, only one of them will be different from 0
@@ -28422,9 +28983,9 @@ var modifiers = {
 
 /**
  * Default options provided to Popper.js constructor.<br />
- * These can be overriden using the `options` argument of Popper.js.<br />
- * To override an option, simply pass as 3rd argument an object with the same
- * structure of this object, example:
+ * These can be overridden using the `options` argument of Popper.js.<br />
+ * To override an option, simply pass an object with the same
+ * structure of the `options` object, as the 3rd argument. For example:
  * ```
  * new Popper(ref, pop, {
  *   modifiers: {
@@ -28438,7 +28999,7 @@ var modifiers = {
  */
 var Defaults = {
   /**
-   * Popper's placement
+   * Popper's placement.
    * @prop {Popper.placements} placement='bottom'
    */
   placement: 'bottom',
@@ -28450,7 +29011,7 @@ var Defaults = {
   positionFixed: false,
 
   /**
-   * Whether events (resize, scroll) are initially enabled
+   * Whether events (resize, scroll) are initially enabled.
    * @prop {Boolean} eventsEnabled=true
    */
   eventsEnabled: true,
@@ -28464,17 +29025,17 @@ var Defaults = {
 
   /**
    * Callback called when the popper is created.<br />
-   * By default, is set to no-op.<br />
+   * By default, it is set to no-op.<br />
    * Access Popper.js instance with `data.instance`.
    * @prop {onCreate}
    */
   onCreate: function onCreate() {},
 
   /**
-   * Callback called when the popper is updated, this callback is not called
+   * Callback called when the popper is updated. This callback is not called
    * on the initialization/creation of the popper, but only on subsequent
    * updates.<br />
-   * By default, is set to no-op.<br />
+   * By default, it is set to no-op.<br />
    * Access Popper.js instance with `data.instance`.
    * @prop {onUpdate}
    */
@@ -28482,7 +29043,7 @@ var Defaults = {
 
   /**
    * List of modifiers used to modify the offsets before they are applied to the popper.
-   * They provide most of the functionalities of Popper.js
+   * They provide most of the functionalities of Popper.js.
    * @prop {modifiers}
    */
   modifiers: modifiers
@@ -28502,10 +29063,10 @@ var Defaults = {
 // Methods
 var Popper = function () {
   /**
-   * Create a new Popper.js instance
+   * Creates a new Popper.js instance.
    * @class Popper
    * @param {HTMLElement|referenceObject} reference - The reference element used to position the popper
-   * @param {HTMLElement} popper - The HTML element used as popper.
+   * @param {HTMLElement} popper - The HTML element used as the popper
    * @param {Object} options - Your custom options to override the ones defined in [Defaults](#defaults)
    * @return {Object} instance - The generated Popper.js instance
    */
@@ -28601,7 +29162,7 @@ var Popper = function () {
     }
 
     /**
-     * Schedule an update, it will run on the next UI update available
+     * Schedules an update. It will run on the next UI update available.
      * @method scheduleUpdate
      * @memberof Popper
      */
@@ -28638,7 +29199,7 @@ var Popper = function () {
  * new Popper(referenceObject, popperNode);
  * ```
  *
- * NB: This feature isn't supported in Internet Explorer 10
+ * NB: This feature isn't supported in Internet Explorer 10.
  * @name referenceObject
  * @property {Function} data.getBoundingClientRect
  * A function that returns a set of coordinates compatible with the native `getBoundingClientRect` method.
@@ -28659,7 +29220,7 @@ return Popper;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -28845,7 +29406,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function(self) {
   'use strict';
 
@@ -29313,7 +29874,7 @@ process.umask = function() { return 0; };
   self.fetch.polyfill = true
 })(typeof self !== 'undefined' ? self : this);
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = {
   'avatar': { author: 'Claude Martins', date: '1995/02'  },
   'big': { author: 'Glenn Chappell', date: '1993/04' },
@@ -29333,11 +29894,12 @@ module.exports = {
   'stop': { author: 'David Walton', date: '1994/08' },
 };
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 require('es6-promise').polyfill();
 require('canvas-text-metrics-polyfill');
 require('whatwg-fetch');
+require('blueimp-canvas-to-blob');
 
 var $ = require('jquery');
 var figlet = require('figlet');
@@ -29345,7 +29907,9 @@ var knockout = require('knockout');
 var flfs = require('./flfs.js');
 var bootstrap = require('bootstrap');
 var slider = require('bootstrap-slider');
+var filesaver = require('file-saver');
 var iro = require('iro');
+var dateformat = require('dateformat');
 iro.Color.useHsv = true;
 
 const space = ' ';
@@ -29421,12 +29985,12 @@ viewmodel.fontsize = knockout.observable(18);
 viewmodel.fontsize.subscribe(function(newval){
   viewmodel.generate();
 });
-viewmodel.input = knockout.observable('WTTL Generator');
-viewmodel.input.subscribe(function(newval){
+viewmodel.text = knockout.observable('WTTL Generator');
+viewmodel.text.subscribe(function(newval){
   viewmodel.generate();
 });
 viewmodel.generate = function() {
-  figlet.text(viewmodel.input(), { font: viewmodel.flfname() },
+  figlet.text(viewmodel.text(), { font: viewmodel.flfname() },
     function(err, data) {
       if (err) {
         console.log("figlet: ", err);
@@ -29442,6 +30006,14 @@ viewmodel.generate = function() {
       };
       draw(canvas, pack(canvas, data, packoptions));
     });
+};
+viewmodel.saveas = function() {
+  var now = new Date();
+  var time = [dateformat(now, 'yyyymmdd'), 'T', dateformat(now, 'HHMMss')].join('');
+  canvas.get(0).toBlob(function(blob) {
+    var fn = ['WTTLGenerator', viewmodel.text(), time].join('_') + '.png';
+    filesaver.saveAs(blob, fn);
+  });
 };
 viewmodel.getcolor = function(prefix){
   return new iro.Color().hsv(viewmodel[prefix + 'hue'](),
@@ -29561,7 +30133,7 @@ function pack(canvas, data, options) {
   }
   var n = 0;
   fragmentdata(randomdata(horzmax, vertmax, maindata), options.randomquality).forEach(function(d) {
-    items.push({ text: d, color: makecolor(n++) }); 
+    items.push({ text: d, color: makecolor(n++) });
   });
   return {
     overflowx: overflowx,
@@ -29649,4 +30221,4 @@ $(function() {
   viewmodel.generate();
 });
 
-},{"./flfs.js":16,"bootstrap":2,"bootstrap-slider":1,"canvas-text-metrics-polyfill":6,"es6-promise":8,"figlet":9,"iro":10,"jquery":11,"knockout":12,"whatwg-fetch":15}]},{},[17]);
+},{"./flfs.js":19,"blueimp-canvas-to-blob":1,"bootstrap":3,"bootstrap-slider":2,"canvas-text-metrics-polyfill":7,"dateformat":9,"es6-promise":10,"figlet":11,"file-saver":12,"iro":13,"jquery":14,"knockout":15,"whatwg-fetch":18}]},{},[20]);
