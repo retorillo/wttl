@@ -146,7 +146,6 @@ function setfont(ctxw, font, h) {
   // ctxw.set('font', font);
   var font = [h.toFixed(1) + 'px', font].join(' ');
   ctxw.set('font', font);
-  console.log('font: ', font);
   return { font: font, mt: ctxw.baseObject.measureText('A') };
 }
 function normalize(data) {
@@ -185,7 +184,6 @@ function pack(canvas, data, options) {
 
   var chw = fontinfo.mt.raw.width;
   var chh = fontinfo.mt.fontBoundingBoxAscent + fontinfo.mt.fontBoundingBoxDescent;
-  console.log('character W H: ', chw, chh);
 
   var horzmax = Math.floor(canvasw / chw);
   var vertmax = Math.ceil(canvash / chh);
@@ -209,7 +207,6 @@ function pack(canvas, data, options) {
   if (horzpad % 2 == 1) { horzpad++; horzmax++; overflowx++; }
   if (vertpad % 2 == 1) { vertpad++; vertmax++; overflowy++; }
 
-  console.log('padding H W: ', horzpad, vertpad);
   var plines = [];
   var padl = horzpad / 2;
   var padt = vertpad / 2;
