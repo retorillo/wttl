@@ -1,0 +1,20 @@
+@import (inline) "../node_modules/bootstrap/dist/css/bootstrap.css";
+@import (inline) "../node_modules/bootstrap-slider/dist/css/bootstrap-slider.css";
+
+@font-face {
+  font-family: 'EmbedOCRA';
+  /*# OCRA by John Sauter (https://sourceforge.net/projects/ocr-a-font/) */
+  src: data-uri('../src/OCRA.woff') format('woff')
+}
+canvas {
+  width: 100%;
+  border-bottom: 1px solid #555
+}
+body {
+}
+* {
+  font-family: 'EmbedOCRA', monospace !important;
+}
+.slider-handle, .slider-selection {
+  background: #09A
+}

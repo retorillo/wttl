@@ -1,0 +1,18 @@
+module.exports = {
+  'avatar': { author: 'Claude Martins', date: '1995/02'  },
+  'big': { author: 'Glenn Chappell', date: '1993/04' },
+  'bulbhead': { author: 'Jef Poskanzer', date: '1994/06' },
+  'chunky': { author: 'Chris Gill', date: '1994/06' },
+  'doom': { author: 'Frans P. de Vries', date: '1996/06' },
+  'isometric1': { author: 'Kent Nassen', date: '1994/10' },
+  'isometric2': { author: 'Kent Nassen', date: '1994/10' },
+  'isometric3': { author: 'Kent Nassen', date: '1994/10' },
+  'isometric4': { author: 'Kent Nassen', date: '1994/10' },
+  'rounded': { author: 'Nick Miners', date: '1994/05' },
+  'slant': { author: 'Glenn Chappell', date: '1996/03' },
+  'small': { author: 'Glenn Chappell', date: '1996/03' },
+  'smslant': { author: 'Glenn Chappell', date: '1996/03' },
+  'standard': { author: 'Glenn Chappell & Ian Chai', date: '1993/03' },
+  'starwars': { author: 'Ryan Youck', date: '1994/12' },
+  'stop': { author: 'David Walton', date: '1994/08' },
+};
